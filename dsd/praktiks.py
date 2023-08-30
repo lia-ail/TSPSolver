@@ -1,9 +1,3 @@
-import six
-import sys
-sys.modules['sklearn.externals.six'] = six
-import sklearn
-from mlrose import TravellingSales, TSPOpt, genetic_alg
-
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox
@@ -11,7 +5,7 @@ from PIL import Image
 import operator
 import customtkinter
 import pandas as pd
-from itertools import permutations
+from dynamic_example import dynamic_solution
 
 
 def read_from_file1(path):
@@ -20,98 +14,6 @@ def read_from_file1(path):
     elif path.split('\\')[-1].split('.')[-1] == 'csv':
         data = pd.read_csv(path, header=None)
     return data
-
-
-def solving_tsp1(D):
-    if len(list(D.columns)) == len(list(D.index)):
-        names = list(D.columns)
-    else:
-        names = ['City' + str(i) for i in D.shape[0]]
-
-    dat = []
-
-    for i in range(len(D.iloc[0])):
-        for j in range(len(D.iloc[0])-1):
-            if i != j:
-                dat.append((i, j, D.iloc[i, j]))
-
-    fitn_dist = TravellingSales(distances=dat)
-
-    problem_fit = TSPOpt(length=len(D), fitness_fn=fitn_dist, maximize=opt_value.get() == 'Maximize income')
-
-    bs, bf = genetic_alg(problem_fit, random_state=2)
-
-    return names[bs[-1]] + ' '.join([names[i] for i in bs]), bf
-
-
-def solving_tsp2(D, s):
-    if len(list(D.columns)) == len(list(D.index)):
-        names = list(D.columns)
-    else:
-        names = ['City' + str(i) for i in D.shape[0]]
-
-    bul_func = operator.gt if opt_value.get() == "Maximize income" else operator.lt
-    V = len(D)
-    vertex = []
-    for i in range(V):
-        if i != s:
-            vertex.append(i)
-    min_cost = 0
-    next_permutation = permutations(vertex)
-    best_perm = next_permutation.__next__()
-    k = s
-    for j in best_perm:
-        min_cost += D[D.columns[k]].iloc[j]
-        k = j
-    for i in next_permutation:
-        current_cost = 0
-        k = s
-        for j in i:
-            current_cost += D[D.columns[k]][j]
-            k = j
-        current_cost += D[D.columns[k]][s]
-        if bul_func(current_cost, min_cost):
-            min_cost = current_cost
-            best_perm = i
-
-    return names[s] + ' '.join([names[i] for i in best_perm]) + names[s], min_cost
-
-
-def solving_tsp3(D, s):
-    if len(list(D.columns)) == len(list(D.index)):
-        names = list(D.columns)
-    else:
-        names = ['City' + str(i) for i in D.shape[0]]
-
-    num_cities = D.shape[0]
-    visited = [False] * num_cities
-    route = []
-    current_city = s
-    total_distance = 0
-    bul_func = operator.gt if opt_value.get() == "Maximize income" else operator.lt
-
-
-    route.append(current_city)
-    visited[current_city] = True
-
-    for _ in range(num_cities - 1):
-        nearest_city = None
-        min_distance = sys.maxsize * 1 - 2*(bul_func == operator.gt)
-
-        for next_city in range(num_cities):
-            if not visited[next_city] and bul_func(D[D.columns[current_city]][next_city], min_distance):
-                nearest_city = next_city
-                min_distance = D[D.columns[current_city]][next_city]
-
-        current_city = nearest_city
-        route.append(current_city)
-        visited[current_city] = True
-        total_distance += min_distance
-
-    route.append(s)
-    total_distance += D[D.columns[current_city]][s]
-
-    return ' '.join([names[i] for i in route]), total_distance
 
 
 customtkinter.set_appearance_mode('system')
@@ -381,30 +283,12 @@ out = ''
 def solve():
     global out
     try:
-        if alg_value.get() == 'mlrose algorithm':
-            res = solving_tsp1(dp)
+        if alg_value.get() == 'Dynamic programming algorithm':
+            res = dynamic_solution(dp)
             txtarea.insert(tk.END, '\n Results \n')
             txtarea.insert(tk.END, res[0])
             l1.configure(text=str(res[1]) + ' ' + curr_value.get())
             out = res[0]
-        elif alg_value.get() == 'Simple approach':
-            try:
-                res = solving_tsp2(dp, int(s_area.get())-1)
-                txtarea.insert(tk.END, '\n Results \n')
-                txtarea.insert(tk.END, res[0])
-                l1.configure(text=str(res[1]) + ' ' + curr_value.get())
-                out = res[0]
-            except (ValueError, IndexError):
-                messagebox.showerror("Error", "Incorrect value of number of cities.Please input number in bounds of matrix length")
-        elif alg_value.get() == 'Greedy algorithm':
-            try:
-                res = solving_tsp2(dp, int(s_area.get()) - 1)
-                txtarea.insert(tk.END, '\n Results \n')
-                txtarea.insert(tk.END, res[0])
-                l1.configure(text=str(res[1]) + ' ' + curr_value.get())
-                out = res[0]
-            except (ValueError, IndexError):
-                messagebox.showerror("Error", "Incorrect value of number of cities.Please input number in bounds of matrix length")
     except AttributeError:
         messagebox.showerror("Error", "Nothing to solve yet. Please input or import data and try again.")
 
@@ -554,9 +438,9 @@ opt_list = ['Maximize income', 'Minimize expenses']
 opt_value = customtkinter.StringVar(root)
 opt_value.set('Maximize income')
 
-alg_list = ['mlrose algorithm', 'Greedy algorithm', 'Simple approach']
+alg_list = ['Dynamic programming algorithm']
 alg_value = customtkinter.StringVar(root)
-alg_value.set('mlrose algorithm')
+alg_value.set('Dynamic programming algorithm')
 
 alg_menu = customtkinter.CTkOptionMenu(master=root, variable=alg_value, values=alg_list)
 alg_menu.place(x=500, y=0)

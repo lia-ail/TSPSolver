@@ -32,6 +32,13 @@ def dynamic_solution(matrix_vals):
         memo[i][mask] = res_distance, res_path  # memoization
         return res_distance, res_path
 
+
+    names = list(matrix_vals.columns)
+
+
+
+    matrix_vals = [list(arr) for arr in matrix_vals.to_numpy()]
+
     n = len(matrix_vals)
 
     for i in range(n):
@@ -65,15 +72,14 @@ def dynamic_solution(matrix_vals):
     Driver loop for finding optimal value and route
     """
 
-    return ans_distance, ans_path
+    return ' '.join([str(names[i-1]) for i in ans_path]), ans_distance
 
 
 if __name__ == "__main__":
     import pandas as pd
 
-    l = pd.DataFrame([[0, 16, 11, 6], [8, 0, 13, 16], [4, 7, 0, 9], [5, 12, 2, 0]])
-    l = [list(arr) for arr in l.to_numpy()]
-    distance, path = dynamic_solution(l)
+    l = pd.DataFrame([[0, 10, 15, 20], [10, 0, 25, 30], [15, 25, 0, 35], [20, 30, 35, 0]])
+    path, distance = dynamic_solution(l)
     print("Optimal distance:", distance)
     print("Optimal path:", path)
 
