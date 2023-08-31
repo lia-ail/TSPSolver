@@ -8,7 +8,6 @@ from dynamic_example import dynamic_solution
 from calculator import calc
 
 
-
 def read_from_file1(path):
     if path.split('\\')[-1].split('.')[-1] == 'xlsx':
         data = pd.read_excel(path, header=None)
@@ -17,21 +16,6 @@ def read_from_file1(path):
     return data
 
 
-customtkinter.set_appearance_mode('system')
-customtkinter.set_default_color_theme('blue')
-
-root = customtkinter.CTk()
-root.geometry('700x700')
-root.title('Transport Salesman Problem')
-root.resizable(False, False)
-for i in range(4):
-    root.columnconfigure(i, weight=(1 if i != 1 else 2))
-for j in range(3):
-    root.rowconfigure(j, weight=1)
-
-dp = 0
-
-is_calc_closed = True
 def select_file():
     try:
         global dp
@@ -62,14 +46,11 @@ def select_file():
         pass
 
 
-out = ''
-
-
 def solve():
     global out
     try:
-        if alg_value.get() == 'Dynamic programming algorithm':
-            res = dynamic_solution(dp)
+        if alg_value.get() == "Dynamic programming algorithm":
+            res = dynamic_solution(dp, opt_value.get() == "Minimize expenses")
             txtarea.insert(tk.END, '\n Results \n')
             txtarea.insert(tk.END, res[0])
             l1.configure(text=str(res[1]) + ' ' + curr_value.get())
@@ -91,28 +72,29 @@ def save():
         except AttributeError:
             pass
     else:
-        messagebox.showwarning("Save warning", "You don't have proceeded output yet. Please try again after solving procedure")
+        messagebox.showwarning("Save warning", "You don't have proceeded output yet."
+                                               " Please try again after solving procedure")
 
-is_closed = True
+
 def create_table():
     global is_closed
     if is_closed:
         numofm = []
         numofs = []
         values = []
+
         def create_table2():
             nonlocal numofs, numofm, values
             try:
                 if (numofs != []) or (numofs != []) or (values != []):
                     clear()
                 if int(e1.get()) > 5:
-                    messagebox.showwarning('Warning',
-                                           'Please, change number of values or import files to proceed large data',
+                    messagebox.showwarning("Warning",
+                                           "Please, change number of values or import files to proceed large data",
                                            parent=window)
                 elif int(e1.get()) <= 0:
-                    messagebox.showerror('Error',
-                                           'Incorrect number of cities, please change and try again.',
-                                           parent=window)
+                    messagebox.showerror("Error","Incorrect number of cities, please change and try again.",
+                                         parent=window)
                 else:
                     numofm = ['' for _ in range(int(e1.get()))]
                     numofs = ['' for _ in range(int(e1.get()))]
@@ -141,7 +123,6 @@ def create_table():
                     j.destroy()
             numofs, numofm, values = [], [], []
 
-
         def done():
             global dp, is_closed
             nonlocal numofm, numofs, values
@@ -154,7 +135,7 @@ def create_table():
                 rws = ['City' + str(j+1) for j in range(len(numofs))]
                 dp = pd.DataFrame(data=res, columns=cl, index=rws)
                 if len(dp) != 0:
-                    txtarea.delete("1.0","end")
+                    txtarea.delete("1.0", "end")
                     txtarea.insert(tk.END, dp.to_string())
                     window.destroy()
                     is_closed = True
@@ -164,15 +145,14 @@ def create_table():
                         window.destroy()
                         is_closed = True
             except ValueError:
-                messagebox.showerror('Error', 'Incorrect input. Please, fill all of the cells and try again.', parent=window)
-
+                messagebox.showerror('Error',
+                                     'Incorrect input. Please, fill all of the cells and try again.', parent=window)
 
         def on_close():
             global is_closed
             nonlocal window
             is_closed = True
             window.destroy()
-
 
         window = customtkinter.CTkToplevel(root)
         window.geometry('800x400')
@@ -198,20 +178,27 @@ def create_table():
         window.protocol("WM_DELETE_WINDOW", on_close)
 
 
+customtkinter.set_appearance_mode('system')
+customtkinter.set_default_color_theme('blue')
 
+root = customtkinter.CTk()
+root.geometry('700x700')
+root.title('Transport Salesman Problem')
+root.resizable(False, False)
+for i in range(4):
+    root.columnconfigure(i, weight=(1 if i != 1 else 2))
+for j in range(3):
+    root.rowconfigure(j, weight=1)
 
+dp = 0
+out = ''
+is_closed = True
 txtarea = customtkinter.CTkTextbox(root, width=500, height=200)
 txtarea.grid(column=0, row=0, columnspan=4)
 l1 = customtkinter.CTkLabel(root, text='Optimal amount:')
 l1.grid(column=3, row=1)
 l2 = customtkinter.CTkLabel(root, text='Currency:')
 l2.grid(column=1, row=1)
-l3 = customtkinter.CTkLabel(root, text='Which city or node is initial (number of city):')
-l3.place(x=100, y=325)
-s_area = customtkinter.CTkEntry(root, width=50, height=20)
-s_area.place(x=350, y=325)
-l4 = customtkinter.CTkLabel(root, text="(Doesn't work with mlrose algorithm)")
-l4.place(x=450, y=325)
 curr_list = ['UAH', 'USD', 'EUR']
 curr_value = customtkinter.StringVar(root)
 curr_value.set('UAH')
@@ -221,7 +208,7 @@ curr_menu.grid(column=2, row=1)
 
 opt_list = ['Maximize income', 'Minimize expenses']
 opt_value = customtkinter.StringVar(root)
-opt_value.set('Maximize income')
+opt_value.set('Minimize expenses')
 
 alg_list = ['Dynamic programming algorithm']
 alg_value = customtkinter.StringVar(root)
@@ -258,8 +245,8 @@ save_button = customtkinter.CTkButton(
 )
 
 
-imgcalc = customtkinter.CTkImage(light_image=Image.open("vector-calculator-icon.jpg"), size=(30, 30))
-calc_button = customtkinter.CTkButton(root, image=imgcalc, text="Calculator", command=lambda : calc(root, is_calc_closed))
+imgcalc = customtkinter.CTkImage(light_image=Image.open("vector-calculator-icon.png"), size=(30, 30))
+calc_button = customtkinter.CTkButton(root, image=imgcalc, text="Calculator", command=lambda: calc(root))
 
 calc_button.place(x=0, y=0)
 ti_button.grid(column=0, row=2)
@@ -268,3 +255,4 @@ solve_button.grid(column=2, row=2)
 save_button.grid(column=3, row=2)
 
 root.mainloop()
+

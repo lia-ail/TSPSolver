@@ -1,4 +1,7 @@
-def dynamic_solution(matrix_vals):
+import operator
+
+
+def dynamic_solution(matrix_vals, minimize=True):
     def func(i, mask):
         if mask == ((1 << i) | 3):
             return matrix_vals[1][i], [1, i]
@@ -15,13 +18,13 @@ def dynamic_solution(matrix_vals):
         Checking memo matrix if we have found memo[i][mask] earlier
         """
 
-        res_distance = float("inf")
+        res_distance = float("inf") if minimize else float("-inf")
         res_path = []
 
         for j in range(1, n + 1):
             if (mask & (1 << j)) != 0 and j != 1 and j != i:
                 dist, path = func(j, mask & (~(1 << i)))
-                if dist + matrix_vals[j][i] < res_distance:
+                if oprtr(dist + matrix_vals[j][i], res_distance):
                     res_distance = dist + matrix_vals[j][i]
                     res_path = path + [i]
 
@@ -32,10 +35,9 @@ def dynamic_solution(matrix_vals):
         memo[i][mask] = res_distance, res_path  # memoization
         return res_distance, res_path
 
+    oprtr = operator.lt if minimize else operator.gt
 
     names = list(matrix_vals.columns)
-
-
 
     matrix_vals = [list(arr) for arr in matrix_vals.to_numpy()]
 
@@ -56,7 +58,7 @@ def dynamic_solution(matrix_vals):
     Creating memo matrix of size (n+1)^2 to add memoization into algorithm
     """
 
-    ans_distance, ans_path = float("inf"), []
+    ans_distance, ans_path = float("inf") if minimize else float("-inf"), []
 
     """
     ans_distance and ans_path variables to keep track of minimum value and route of the minimum value respectively
@@ -64,7 +66,7 @@ def dynamic_solution(matrix_vals):
 
     for i in range(1, n + 1):
         distance, path = func(i, (1 << (n + 1)) - 1)
-        if distance + matrix_vals[i][1] < ans_distance:
+        if oprtr(distance + matrix_vals[i][1], ans_distance):
             ans_distance = distance + matrix_vals[i][1]
             ans_path = path + [1]
 
