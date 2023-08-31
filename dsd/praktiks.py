@@ -5,6 +5,7 @@ from PIL import Image
 import customtkinter
 import pandas as pd
 from dynamic_example import dynamic_solution
+from nearest_neighbor import nearestn_solution
 from calculator import calc
 
 
@@ -51,6 +52,12 @@ def solve():
     try:
         if alg_value.get() == "Dynamic programming algorithm":
             res = dynamic_solution(dp, opt_value.get() == "Minimize expenses")
+            txtarea.insert(tk.END, '\n Results \n')
+            txtarea.insert(tk.END, res[0])
+            l1.configure(text=str(res[1]) + ' ' + curr_value.get())
+            out = res[0]
+        else:
+            res = nearestn_solution(dp, opt_value.get() == "Minimize expenses")
             txtarea.insert(tk.END, '\n Results \n')
             txtarea.insert(tk.END, res[0])
             l1.configure(text=str(res[1]) + ' ' + curr_value.get())
@@ -199,6 +206,12 @@ l1 = customtkinter.CTkLabel(root, text='Optimal amount:')
 l1.grid(column=3, row=1)
 l2 = customtkinter.CTkLabel(root, text='Currency:')
 l2.grid(column=1, row=1)
+l3 = customtkinter.CTkLabel(root, text='For not so big data samples "Dynamic programming algorithm"'
+                                       'is OK, it also provide precise results.', font=("Arial", 15))
+l3.place(x=0, y=300)
+l4 = customtkinter.CTkLabel(root, text='For big data samples you can use "Nearest Neighbor Algorithm". '
+                                       'It is not so precise, but much more efficient.', font=("Arial", 15))
+l4.place(x=0, y=325)
 curr_list = ['UAH', 'USD', 'EUR']
 curr_value = customtkinter.StringVar(root)
 curr_value.set('UAH')
@@ -206,11 +219,11 @@ curr_value.set('UAH')
 curr_menu = customtkinter.CTkOptionMenu(master=root, variable=curr_value, values=curr_list)
 curr_menu.grid(column=2, row=1)
 
-opt_list = ['Maximize income', 'Minimize expenses']
+opt_list = ["Maximize income", "Minimize expenses"]
 opt_value = customtkinter.StringVar(root)
 opt_value.set('Minimize expenses')
 
-alg_list = ['Dynamic programming algorithm']
+alg_list = ["Dynamic programming algorithm", "Nearest neighbor algorithm"]
 alg_value = customtkinter.StringVar(root)
 alg_value.set('Dynamic programming algorithm')
 
