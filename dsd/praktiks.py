@@ -49,21 +49,30 @@ def select_file():
         dp = read_from_file1(filename)
 
         """
-        Our matrix must be squared, so if there are more rows than columns, it means that there are some user-defined
-        names. That means that we need to refactor names such that our matrix will work correctly, still displaying
-        user-defined names. Else we just create default names:
+        If the first value of our matrix is not a number or a string with a single whitespace 
+        (dependent on from which file is matrix imported) then, it has named columns and rows,
+        and we need to edit our matrix to work correctly. If statement above is not True, then we check if
+        number of columns is greater than number of rows. In case previous condition is True,
+        we edit matrix accordingly, else name matrix with default names:
         """
 
-        if len(dp.columns) == len(dp.index):
-            dp.columns = ['City'+str(i+1) for i in range(len(dp.columns))]
+        if pd.isna(dp.iloc[0][0]) or dp.iloc[0][0] == ' ':
+            new_cols = list(dp.iloc[0][1:])
+            dp = pd.DataFrame(dp[dp.columns[1:]].iloc[1:])
+            dp.columns = new_cols
             dp.index = dp.columns
-        else:
+            for col in dp.columns:
+                dp[col] = pd.to_numeric(dp[col])
+        elif len(dp.columns) > len(dp.index):
             new_cols = list(dp.iloc[0])
             dp.columns = new_cols
             dp = pd.DataFrame(dp.iloc[1:], columns=new_cols)
             dp.index = dp.columns
             for col in dp.columns:
                 dp[col] = pd.to_numeric(dp[col])
+        else:
+            dp.columns = ['City'+str(i+1) for i in range(len(dp.columns))]
+            dp.index = dp.columns
 
         """
         Inserting edited matrix into display area:
