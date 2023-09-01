@@ -6,11 +6,12 @@ calc_window = None  # Variable to keep track if calculator exists
 
 
 def calc(root):
-    global calc_window
     """
     Creates a calculator on top of parent window.
     :param root: Parent window.
     """
+    global calc_window
+
 
     def on_close():
         """
@@ -22,6 +23,10 @@ def calc(root):
             calc_window = None
 
     def one_divide():
+        """
+        A function to divide one by last inserted number.
+        :return: Returns result value in-place of last inserted number.
+        """
         num = ""
         while calcarea.get('1.0', tk.END).strip() and calcarea.get('1.0', tk.END).strip()[-1].isnumeric():
             num += calcarea.get('1.0', tk.END).strip()[-1]

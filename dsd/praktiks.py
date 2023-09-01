@@ -10,6 +10,11 @@ from calculator import calc
 
 
 def read_from_file1(path):
+    """
+    Helper function to get user data from files of .xlsx or .csv types at given path.
+    :param path: Path, which used to open a file.
+    :return: Returns pd.DataFrame from an opened file.
+    """
     if path.split('\\')[-1].split('.')[-1] == 'xlsx':
         data = pd.read_excel(path, header=None)
     elif path.split('\\')[-1].split('.')[-1] == 'csv':
@@ -18,8 +23,19 @@ def read_from_file1(path):
 
 
 def select_file():
+    """
+    A function that linked to "Select file" button. Cleans display area. Using previously defined helper function
+    writes to the global variable "dp" a matrix. If there are any user-defined names,
+    refactor matrix to correctly display them, else defines default names in format "City X".
+    Inserts matrix into display area.
+    """
     try:
         global dp
+
+        """
+        Opening file procedure:
+        """
+
         filetypes = (
             ('Excel files', '*.xlsx'),
             ('CSV files', '*.csv*')
@@ -29,8 +45,15 @@ def select_file():
             title='Open a file',
             initialdir='/',
             filetypes=filetypes)
-        txtarea.delete("1.0","end")
+        txtarea.delete("1.0", "end")
         dp = read_from_file1(filename)
+
+        """
+        Our matrix must be squared, so if there are more rows than columns, it means that there are some user-defined
+        names. That means that we need to refactor names such that our matrix will work correctly, still displaying
+        user-defined names. Else we just create default names:
+        """
+
         if len(dp.columns) == len(dp.index):
             dp.columns = ['City'+str(i+1) for i in range(len(dp.columns))]
             dp.index = dp.columns
@@ -41,6 +64,11 @@ def select_file():
             dp.index = dp.columns
             for col in dp.columns:
                 dp[col] = pd.to_numeric(dp[col])
+
+        """
+        Inserting edited matrix into display area:
+        """
+
         txtarea.insert(tk.END, dp.fillna('').to_string())
         l1.configure(text='Optimal amount:')
     except UnboundLocalError:
