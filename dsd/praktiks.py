@@ -12,7 +12,7 @@ from calculator import calc
 def read_from_file1(path):
     """
     Helper function to get user data from files of .xlsx or .csv types at given path.
-    :param path: Path, which used to open a file.
+    :param path: Path, which is used to open a file.
     :return: Returns pd.DataFrame from an opened file.
     """
     if path.split('\\')[-1].split('.')[-1] == 'xlsx':
@@ -24,7 +24,7 @@ def read_from_file1(path):
 
 def select_file():
     """
-    A function that linked to "Select file" button. Cleans display area. Using previously defined helper function
+    A function that is linked to "Select file" button. Cleans display area. Using previously defined helper function
     writes to the global variable "dp" a matrix. If there are any user-defined names,
     refactor matrix to correctly display them, else defines default names in format "City X".
     Inserts matrix into display area.
@@ -35,7 +35,6 @@ def select_file():
         """
         Opening file procedure:
         """
-
         filetypes = (
             ('Excel files', '*.xlsx'),
             ('CSV files', '*.csv*')
@@ -55,29 +54,60 @@ def select_file():
         number of columns is greater than number of rows. In case previous condition is True,
         we edit matrix accordingly, else name matrix with default names:
         """
-
         if pd.isna(dp.iloc[0][0]) or dp.iloc[0][0] == ' ':
+            """
+            Saving names:
+            """
             new_cols = list(dp.iloc[0][1:])
+
+            """
+            Recreating table without names in fields:
+            """
             dp = pd.DataFrame(dp[dp.columns[1:]].iloc[1:])
+
+            """
+            Define names for columns and rows:
+            """
             dp.columns = new_cols
             dp.index = dp.columns
+
+            """
+            Change type of columns to numeric type:
+            """
             for col in dp.columns:
                 dp[col] = pd.to_numeric(dp[col])
         elif len(dp.columns) > len(dp.index):
+            """
+            Saving names:
+            """
             new_cols = list(dp.iloc[0])
+
+            """
+            Recreating table without names in fields:
+            """
             dp.columns = new_cols
             dp = pd.DataFrame(dp.iloc[1:], columns=new_cols)
+
+            """
+            Define names for columns and rows:
+            """
             dp.index = dp.columns
+
+            """
+            Change type of columns to numeric type:
+            """
             for col in dp.columns:
                 dp[col] = pd.to_numeric(dp[col])
         else:
+            """
+            Set default names:
+            """
             dp.columns = ['City'+str(i+1) for i in range(len(dp.columns))]
             dp.index = dp.columns
 
         """
         Inserting edited matrix into display area:
         """
-
         txtarea.insert(tk.END, dp.fillna('').to_string())
         l1.configure(text='Optimal amount:')
     except UnboundLocalError:
@@ -85,30 +115,62 @@ def select_file():
 
 
 def solve():
+    """
+    A function that is linked to the "Solve" button.
+    Calls imported "Dynamic programming algorithm" or "Nearest neighbor algorithm",
+    according to user-defined value in "opt_value" menu. Displays result in display area,
+    writes to global variable "out" calculated result.
+    """
     global out
     try:
+        """
+        Calling imported function:
+        """
         if alg_value.get() == "Dynamic programming algorithm":
             res = dynamic_solution(dp, opt_value.get() == "Minimize expenses")
-            txtarea.insert(tk.END, '\n Results \n')
-            txtarea.insert(tk.END, res[0])
-            l1.configure(text=str(res[1]) + ' ' + curr_value.get())
-            out = res[0]
         else:
             res = nearestn_solution(dp, opt_value.get() == "Minimize expenses")
-            txtarea.insert(tk.END, '\n Results \n')
-            txtarea.insert(tk.END, res[0])
-            l1.configure(text=str(res[1]) + ' ' + curr_value.get())
-            out = res[0]
+
+        """
+        Inserting result route in display area:
+        """
+        txtarea.insert(tk.END, '\n Results \n')
+        txtarea.insert(tk.END, res[0])
+
+        """
+        Inserting optimal value to the according "l1" label:
+        """
+        l1.configure(text=str(res[1]) + ' ' + curr_value.get())
+
+        """
+        Putting result route to the "out" global value:
+        """
+        out = res[0]
     except AttributeError:
         messagebox.showerror("Error", "Nothing to solve yet. Please input or import data and try again.")
 
 
 def save():
+    """
+    A function that is linked to the "Save" button. Saves calculated result,
+    which is stored in global variable "out", to user-defined text file.
+    """
     global out
-    if out:
+    if out:  # if result exists
+        """
+        List of supported file extensions:
+        """
         files = [('All files', '*.*'),
                  ('Text files', '*.txt'), ]
+
+        """
+        Put a file, in which the result will be saved, into a variable:
+        """
         fl = fd.asksaveasfile(filetypes=files, defaultextension=files)
+
+        """
+        Saving procedure:
+        """
         try:
             fl.write(out)
             fl.close()
@@ -121,34 +183,63 @@ def save():
 
 
 def create_table():
+    """
+    A function that is linked to the "Create table" button. Creates a new window at the top of the parent window.
+    Newly created window has three buttons and one field for getting user input.
+    """
     global is_closed
-    if is_closed:
+    if is_closed:  # if window doesn't exist.
         numofm = []
         numofs = []
         values = []
 
         def create_table2():
+            """
+            A function that is linked to the "Create table" button of the child "Create table" window.
+            Takes number of cities from "e1" field of child window,
+            creates a table with user-defined number of cities, but no larger than 5x5, for user manual input.
+            """
             nonlocal numofs, numofm, values
             try:
                 if (numofs != []) or (numofs != []) or (values != []):
                     clear()
+
+                """
+                If number of cities in field "e1" is greater than 5, then sends a warning message.
+                If number of cities in field "e1" is less than or equal to 0, sends an error message.
+                """
                 if int(e1.get()) > 5:
                     messagebox.showwarning("Warning",
                                            "Please, change number of values or import files to proceed large data",
                                            parent=window)
                 elif int(e1.get()) <= 0:
-                    messagebox.showerror("Error","Incorrect number of cities, please change and try again.",
+                    messagebox.showerror("Error", "Incorrect number of cities, please change and try again.",
                                          parent=window)
                 else:
+                    """
+                    Lists for rows and columns names:
+                    """
                     numofm = ['' for _ in range(int(e1.get()))]
                     numofs = ['' for _ in range(int(e1.get()))]
+
+                    """
+                    Names placement:
+                    """
                     for i in range(int(e1.get())):
                         numofm[i] = customtkinter.CTkLabel(window, text='City' + str(i + 1))
                         numofm[i].grid(row=3, column=i + 1)
                     for j in range(int(e1.get())):
                         numofs[j] = customtkinter.CTkLabel(window, text='City' + str(j + 1))
                         numofs[j].grid(row=j + 4, column=0)
+
+                    """
+                    List for the fields:
+                    """
                     values = [['' for _ in range(int(e1.get()))] for __ in range(int(e1.get()))]
+
+                    """
+                    Fields placement:
+                    """
                     for i in range(int(e1.get())):
                         for j in range(int(e1.get())):
                             values[j][i] = customtkinter.CTkEntry(window)
@@ -157,6 +248,9 @@ def create_table():
                 messagebox.showwarning('Warning', 'Incorrect input, please try again', parent=window)
 
         def clear():
+            """
+            A function that is linked to the "Clear" button. Clears child window.
+            """
             nonlocal numofm, numofs, values
             for i in numofm:
                 i.destroy()
@@ -168,16 +262,37 @@ def create_table():
             numofs, numofm, values = [], [], []
 
         def done():
+            """
+            A function that is linked to the "Done" button. Reads user input from earlier created table.
+            Transforms it to the pd.DataFrame and writes it to the "dp" global value. If table is not created,
+            then asks if user wants to close the window.
+            """
             global dp, is_closed
             nonlocal numofm, numofs, values
             try:
+                """
+                Creating normal 2-D list and inserting values from table in it:
+                """
                 res = [[] for _ in range(len(numofs))]
                 for i in range(len(values)):
                     for j in values[i]:
                         res[i].append(int(j.get()))
+
+                """
+                Creating names for rows and columns:
+                """
                 cl = ['City' + str(i+1) for i in range(len(numofm))]
                 rws = ['City' + str(j+1) for j in range(len(numofs))]
+
+                """
+                Creating a pd.DataFrame matrix from simple 2-D "res" list:
+                """
                 dp = pd.DataFrame(data=res, columns=cl, index=rws)
+
+                """
+                If matrix is empty, asking if user wants to close the "Create window" table,
+                else inserts matrix into display area.
+                """
                 if len(dp) != 0:
                     txtarea.delete("1.0", "end")
                     txtarea.insert(tk.END, dp.to_string())
@@ -193,34 +308,49 @@ def create_table():
                                      'Incorrect input. Please, fill all of the cells and try again.', parent=window)
 
         def on_close():
+            """
+            A helper function, used in closing protocol, helps to prevent bug with ability of creating multiple
+            instances of a window by multiple clicks at "Create table" button in root window.
+            """
             global is_closed
             nonlocal window
             is_closed = True
             window.destroy()
 
+        """
+        Child window itself:
+        """
         window = customtkinter.CTkToplevel(root)
         window.geometry('800x400')
         window.title('Create table')
         window.attributes('-topmost', True)
 
         label3 = customtkinter.CTkLabel(window, text='Please enter numbers of cities (less or equal to 5)')
-        label3.place(relx=0.1, rely=0.7)
+        label3.place(relx=0.025, rely=0.7)
         nofc = customtkinter.CTkLabel(window, text='Number of cities:')
-        nofc.place(relx=0.1, rely=0.8)
+        nofc.place(relx=0.025, rely=0.8)
         e1 = customtkinter.CTkEntry(window)
-        e1.place(relx=0.25, rely=0.8)
+        e1.place(relx=0.175, rely=0.8)
 
         crt = customtkinter.CTkButton(window, text='Create table', command=create_table2)
-        crt.place(relx=0.45, rely=0.9)
+        crt.place(relx=0.415, rely=0.9)
 
         clr = customtkinter.CTkButton(window, text='Clear', command=clear)
-        clr.place(relx=0.1, rely=0.9)
+        clr.place(relx=0.025, rely=0.9)
 
         dnn = customtkinter.CTkButton(window, text='Done', command=done)
         dnn.place(relx=0.8, rely=0.9)
         is_closed = False
         window.protocol("WM_DELETE_WINDOW", on_close)
 
+
+dp = 0  # Global variable to keep input matrices.
+out = ''  # Global variable to keep results of calculations.
+is_closed = True  # Global variable to monitor if child window "Create table" is closed.
+
+"""
+UI of the main window:
+"""
 
 customtkinter.set_appearance_mode('system')
 customtkinter.set_default_color_theme('blue')
@@ -234,9 +364,6 @@ for i in range(4):
 for j in range(3):
     root.rowconfigure(j, weight=1)
 
-dp = 0
-out = ''
-is_closed = True
 txtarea = customtkinter.CTkTextbox(root, width=500, height=200)
 txtarea.grid(column=0, row=0, columnspan=4)
 l1 = customtkinter.CTkLabel(root, text='Optimal amount:')
@@ -305,4 +432,3 @@ solve_button.grid(column=2, row=2)
 save_button.grid(column=3, row=2)
 
 root.mainloop()
-
