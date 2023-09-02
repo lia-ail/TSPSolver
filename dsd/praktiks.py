@@ -371,10 +371,10 @@ l1.grid(column=3, row=1)
 l2 = customtkinter.CTkLabel(root, text='Currency:')
 l2.grid(column=1, row=1)
 l3 = customtkinter.CTkLabel(root, text='For not so big data samples "Dynamic programming algorithm"'
-                                       'is OK, it also provide precise results.', font=("Arial", 15))
+                                       'is OK, it also provide precise results.', font=("Arial", 14))
 l3.place(x=0, y=300)
 l4 = customtkinter.CTkLabel(root, text='For big data samples you can use "Nearest Neighbor Algorithm". '
-                                       'It is not so precise, but much more efficient.', font=("Arial", 15))
+                                       'It is not so precise, but much more efficient.', font=("Arial", 14))
 l4.place(x=0, y=325)
 curr_list = ['UAH', 'USD', 'EUR']
 curr_value = customtkinter.StringVar(root)
@@ -422,7 +422,7 @@ save_button = customtkinter.CTkButton(
 )
 
 
-imgcalc = customtkinter.CTkImage(light_image=Image.open("vector-calculator-icon.png"), size=(30, 30))
+imgcalc = customtkinter.CTkImage(light_image=Image.open("vector-calculator-icon.jpg"), size=(30, 30))
 calc_button = customtkinter.CTkButton(root, image=imgcalc, text="Calculator", command=lambda: calc(root))
 
 calc_button.place(x=0, y=0)
